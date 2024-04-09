@@ -18,21 +18,19 @@ Use the `print("Hello, World!")` function to display a message.
 
 Most Markdown renderers, including the one used by GitHub Pages, support syntax highlighting. To activate this feature, you specify the language immediately after the opening triple backticks. For example:
 
-```markdown
 Here's an example in JavaScript:
 
 ```javascript
 function greet() {
     console.log("Hello, World!");
 }
-
-```markdown
+```
 
 Here's how you can print "Hello, World!" in Python:
 
 ```python
 print("Hello, World!")
-
+```
 
 ## Example
 Provide a detailed example that applies the concepts taught.
