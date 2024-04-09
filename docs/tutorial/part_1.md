@@ -25,7 +25,8 @@ Here's an example in JavaScript:
 function greet() {
     console.log("Hello, World!");
 }
-```
+
+```markdown
 
 Here's how you can print "Hello, World!" in Python:
 
