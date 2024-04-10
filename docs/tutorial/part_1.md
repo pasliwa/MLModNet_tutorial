@@ -6,7 +6,30 @@ We will showcase the use of MLModNet with the GAinS sepsis dataset containing pr
 ## Running MLModNet on a sepsis dataset
 
 ### Preprocessing files
-MLModNet is a modular package with various parts.
+MLModNet is a modular package with various parts. It assumes that you have the following folder structure set up:
+- /ProjectRoot
+  - /docs
+    - index.md
+    - getting_started.md
+    - /tutorial
+      - part_1.md
+      - part_2.md
+      - ...
+  - /code_examples
+    - example1.py
+    - example2.js
+    - ...
+  - /challenges
+    - challenge1.md
+    - challenge2.md
+    - ...
+  - /resources
+    - resource1.pdf
+    - resource2.md
+    - ...
+  - README.md
+  - LICENSE
+
 First you need to modify the two options files. First, in variability_analysis.py you need to modify lines 11-12: these are the lines telling our script what the working directory is, and where the options file is. Change these two accordingly:
 ```python
 working_direct = "/home/username/MLModNet/code/"
