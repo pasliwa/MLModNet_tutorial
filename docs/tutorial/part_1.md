@@ -5,95 +5,66 @@ We will showcase the use of MLModNet with the GAinS sepsis dataset containing pr
 
 ## Running MLModNet on a sepsis dataset
 
-### Preprocessing files
+### Folder structure
 MLModNet is a modular package with various parts. It assumes that you have the following folder structure set up:
 - /ProjectRoot
-  - /docs
-    - index.md
-    - getting_started.md
-    - /tutorial
-      - part_1.md
-      - part_2.md
-      - ...
-  - /code_examples
-    - example1.py
-    - example2.js
-    - ...
-  - /challenges
-    - challenge1.md
-    - challenge2.md
-    - ...
-  - /resources
-    - resource1.pdf
-    - resource2.md
-    - ...
-  - README.md
-  - LICENSE
+    - /code
+        - /COGENT_python
+        - /multilayer_python
+        - /snippets
+    - /options
+        - basic_parameters.tsv
+        - modality_preprocessing_parameters.tsv
+        - COGENT_options.csv
+    - /data
+    - /output
+        - /preprocessed_sorted_data
+        - /variability_plots
+        - /cogent_outputs
 
-First you need to modify the two options files. First, in variability_analysis.py you need to modify lines 11-12: these are the lines telling our script what the working directory is, and where the options file is. Change these two accordingly:
-```python
-working_direct = "/home/username/MLModNet/code/"
-OPTIONS_FILE = f"{working_direct}options/parameters_for_sepsis.tsv"
+### Setting up the environment
+
+First run the setup script:
+```bash
+cd code/snippets
+python setup_parameter_files.py
 ```
+Now, copy your data to the data folder. MLModNet assumes that they are tab-delimited files (*.tsv), where the first column contains features (gene names, protein names, etc.), first row is the header, containing sample IDs (patient IDs) and the value at (i, j) position represents the value of feature i for sample j. 
 
-Then modify the actual files, so that they represent your data. The file is tab-delimited and contains options for the variability processing part of the pipeline.
-Generally:
-- `modality_parameters_file_path` points to the file with the specification of your modality files format. 
-- `modality_parameters_file_sep` specifies the delimiter character for that file, by default tab.
-- `clinical_file_path` points to the file with clinical metadata about the samples.
-- `final_unified_ID` is the name of the column from the clinical metadata file which is the ID to use for subsequent analyses, once it is unified in the preprocessing steps.
-- `clinical_file_sep` specifiec the delimiting character, by default tab.
-- `random_seed_np` and `random_seed_random` are the random seed values.
-- `output_dir_for_variability_plots` points to where the variability plots should be saved.
-- `output_dir_for_processed_data` points to where the processed data should be saved.
-- `samples_to_use_file` point to a file, which should contain a subset of rows of the clinical metadata file in case a subset is to be analysed.
+Also copy the clinical metadata file into this folder. It should be called "clinical.csv" and have sample information stored in rows, with samples uniquely identified by their ID, column called "SampleID", and columns representing clinical features.
 
-In particular, for this sepsis analysis, we will use the following parameters:
-```
-modality_parameters_file_path	"/home/username/MLModNet/code/options/modality_preprocessing_parameters.tsv"
-modality_parameters_file_sep	"	"
-clinical_file_path	"/home/username/data_combat/CBD-CLIN-00006/COMBAT_clinical_basic_data_freeze_131020.txt"
-final_unified_ID	"COMBAT_participant_timepoint_ID"
-clinical_file_sep	"	"
-random_seed_np	42
-random_seed_random	42
-output_dir_for_variability_plots	"/home/username/MLModNet/output/variability_plots/"
-output_dir_for_processed_data	"/home/username/MLModNet/output/preprocessed_sorted_data_nonNA_only/"
-samples_to_use_file	"/home/username/MLModNet/code/full_data_patients.csv"
-``` 
+The package is cappable to make some frequent preprocessing steps, like transposing the data, renaming the sample IDs or handling other delimiters than tabs. Check [Preprocessing](getting_started.md) for more information.
 
-Next we need to modify the file with the modality specifications, pointed to by `modality_parameters_file_path`. This file contains:
-- `modality_name`
-- `file_path`
-- `sep`
-- `transpose`
-- `rename_sample`
-- `feature_ID_name`
-- `modality_ID_name`
+The sepsis dataset we will use is already in this format, so no changes are needed. If your data is in a different format, modify accordingly the options/`modality_preprocessing_parameters.tsv` file.
 
-In our case these will take the following values:
-```
-modality_name	file_path	sep	transpose	rename_sample	feature_ID_name	modality_ID_name
-timstof	/home/username/combat_integration_files/CBD-PRT-00002/processed/ints.tsv	"	"	0	1		COMBAT_proteomics_sample_ID
-logRNAcpm	/home/username/combat_integration_files/CBD-RNA-00004/Logcpm_143_23063.txt	"	"	0	1		RNASeq_sample_ID
-```
+The sepsis dataset contains two modalities: timstof and logcpm-transformed RNA-seq data (logRNAcpm). The `modality_preprocessing_parameters.tsv` therefore has a header and two rows. If your datasets conform to the format, the only two columns that need filling in are: modality_name and file_path (to point where the files are located and what they are called). The other columns allow for different delimiting characters, transposing, and renaming the sample IDs but they can be left with the defaults. This is what the file should look like:
 
-In this way we have set up the environment to unify the datasets - so that they all have the same format - and perform variability calculations, to sort the features based on how much more variable they are than expected at their mean level across the population of features.
+| modality_name | file_path                                                 | sep | transpose | rename_sample | feature_ID_name | modality_ID_name   |
+|---------------|-----------------------------------------------------------|-----|-----------|---------------|----------------|--------------------|
+| timstof       | /home/username/MLModNet/data/sepsis_timstof_with_names.tsv |"\t"|0|0|||
+| logRNAcpm    | /home/username/MLModNet/data/logRNAcpm.tsv |"\t"| 0             | 0              |||
 
-Let's now perform this reformatting and variability analysis.
+General parameters are set up and stored in `options/parameters.tsv` file. They can be changed, in particular, when you ID column is not called "SampleID" or if you want to run the analysis on a subset of samples (e.g. only the hospitalized patients). More in [Subset analysis](getting_started.md).
+
+
+### Filtering and sorting the modality files
+
+Features variability (measured by standard deviation) is affected by its median value across samples. Some genes can seemingly vary a lot, but the magnitude of this variability may be due to the scale this feature is on (median). This is why we sort features based on how much more they vary than expected at their level of activity. We fit a regression line through features' median values and then sort features by their distance from the line (the highest above the line is ordered as first, most variable feature).
+
+Let's now perform this variability analysis.
 
 To run it for a specific dataset, using log scale for the plotting, and with 0.5 as the cut-off value for gene variability, we will run the following command.
 ```bash
-python variability_analysis.py {dataset} 0.5 --log_scale --regression --modality_parameters_file_path {dataset_file}
+python ../multilayer_python/variability_analysis.py {dataset} 0.5 --log_scale --regression --modality_parameters_file_path {dataset_file}
 ```
 
-To do this for all the modalities, we will run the following commands:
+To do this for all the modalities, we run the following commands:
 
 ```bash
- python /home/username/MLModNet/code/run_variability.py
+ python run_variability.py
 ```
-This function runs the variability_analysis.py function for all the lines from the `modality_parameters_file_path` file. (Remember to change the working_direct and options_file pointers if you are working in a different context.)
 
+This function runs the variability_analysis.py function for all the lines from the `modality_parameters_file_path` file.
 This should run quickly and produce processed files and associated variability plots. Now we can proceed to the COGENT stability analyses.
 
 ### COGENT
@@ -103,35 +74,33 @@ COGENT is the lengthiest part of this pipeline. In this part, for each modality,
 `/home/username/MLModNet/COGENT_options.csv` has a bunch of options that you can play around with, but the defaults can be generated through running:
 
 ```bash
-python /home/username/MLModNet/code/create_COGENT_options_from_processed_files.py
+python ../multilayer_python/create_COGENT_options_from_processed_files.py
 ```
-This will create a file, called `COGENT_options_for_sepsis.csv` in the `options` folder. It will contain the default options for COGENT with Pearson correlation. (Remember to change the working_direct and options_file pointers if you are working in a different context.)
+This will create a file, called `COGENT_options.csv` in the `options` folder. It will contain the default options for COGENT with Pearson correlation. (Remember to change the working_direct and options_file pointers if you are working in a different context.)
 
 Now we actually need to run COGENT, and there is a convenient wrapper that uses all the previous files we generated to figure out how to run COGENT.
 
 ```bash
-python COGENT_python/cogent_subsets_code.py '/home/username/MLModNet/code/options/COGENT_options_for_sepsis.csv'
+python ../COGENT_python/cogent_subsets_code.py '../../options/COGENT_options.csv'
 ```
 
 This will take a while, but will calculate the optimal networks and network construction approaches, as well as levels of variability that they exhibit, compared against randomized networks. 
 
-This will generate a bunch of files, which we can now proceed to visualizing. (Remember to change the working_direct and options_file pointers if you are working in a different context.)
+This will generate a bunch of files, which we can now proceed to visualizing. 
 
 We will run `slice_and_surface_plots.py`:
 ```bash
-python /home/username/MLModNet/code/slice_and_surface_plots.py
+python ../multilayer_python//slice_and_surface_plots.py
 ```
-
 This should produce visualizations of how consistent the networks stay upon minor perturbations with a range of network construction approaches.
 
 Finally, let's create a multilayer network!
 
+
+All of these steps can be also run by:
+```bash
+python run_all.py
+```
+
 ### Multilayer Networks!
 
-Now, we can run `multilayer_network_stability.py`:
-
-## Example
-Provide a detailed example that applies the concepts taught.
-
-## Conclusion
-Summarize what the user has learned in this part.
