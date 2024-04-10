@@ -1,5 +1,4 @@
-# Getting Started with [Your Package Name]
-
+# Getting Started with MLModNet
 ## Installation
 Provide detailed installation instructions here.
 

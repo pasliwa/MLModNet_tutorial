@@ -1,16 +1,15 @@
-# Welcome to [Your Package Name] Tutorial
+# Welcome to MLModNet Tutorial
 
 ## Introduction
-A brief introduction to your package, what problems it solves, and what users can achieve with it.
+MLModNet is a principled network science method to first create the most robust patient similarity networks for each of your modalities (RNAseq, proteomics, vitals), integrate them, by layering into into a multilayer structure and then find a stable and meaningful patient stratification. 
 
 ## Quick Start
-A quick guide on how to install and start using your package.
+Just run the following to download and install the relevant environment.
 
 ## Tutorials
 - [Getting Started](getting_started.md)
-- [Tutorial Part 1: Topic Name](tutorial/part_1.md)
-- [Tutorial Part 2: Topic Name](tutorial/part_2.md)
-- ... and so on.
+- [Tutorial: Sepsis](tutorial/part_1.md)
+- [Tutorial: COMBAT](tutorial/part_2.md)
 
 ## Additional Resources
 Links to external resources, documentation, etc.
