@@ -105,4 +105,4 @@ python run_all.py
 
 Finally we will connect all the modalities' layers into a multilayer network. We do it by principled coupling of the nodes between layers and by then running an adapted Leiden algorithm on the multilayer network, by default with Modularity Vertex Partition. This results in a patient-sample stratification, which can be different across layers (thereby uncovering further information, while keeping the integrated nature of the stratification).
 
-![Heatmap of clustering](images/heatmap_clustering_plot_0.5.png)
+![Heatmap of clustering](../images/heatmap_clustering_plot_0.5.png)
