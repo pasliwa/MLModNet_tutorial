@@ -35,7 +35,7 @@ Also copy the clinical metadata file into this folder. It should be called "clin
 
 The package is cappable to make some frequent preprocessing steps, like transposing the data, renaming the sample IDs or handling other delimiters than tabs. Check [Preprocessing](getting_started.md) for more information.
 
-The sepsis dataset we will use is already in this format, so no changes are needed. If your data is in a different format, modify accordingly the options/`modality_preprocessing_parameters.tsv` file.
+The sepsis dataset we will use is already in this format, so no changes are needed. If your data is in a different format, modify accordingly the `options/modality_preprocessing_parameters.tsv` file.
 
 The sepsis dataset contains two modalities: timstof and logcpm-transformed RNA-seq data (logRNAcpm). The `modality_preprocessing_parameters.tsv` therefore has a header and two rows. If your datasets conform to the format, the only two columns that need filling in are: modality_name and file_path (to point where the files are located and what they are called). The other columns allow for different delimiting characters, transposing, and renaming the sample IDs but they can be left with the defaults. This is what the file should look like:
 
@@ -44,7 +44,7 @@ The sepsis dataset contains two modalities: timstof and logcpm-transformed RNA-s
 | timstof       | /home/username/MLModNet/data/sepsis_timstof_with_names.tsv |"\t"|0|0|||
 | logRNAcpm    | /home/username/MLModNet/data/logRNAcpm.tsv |"\t"| 0             | 0              |||
 
-General parameters are set up and stored in `options/parameters.tsv` file. They can be changed, in particular, when you ID column is not called "SampleID" or if you want to run the analysis on a subset of samples (e.g. only the hospitalized patients). More in [Subset analysis](getting_started.md).
+General parameters are set up and stored in `options/parameters.tsv` file. They can be changed, in particular, when your ID column is not called "SampleID" or if you want to run the analysis on a subset of samples (e.g. only the hospitalized patients). More in [Subset analysis](getting_started.md).
 
 
 ### Filtering and sorting the modality files
@@ -64,7 +64,7 @@ To do this for all the modalities, we run the following commands:
  python run_variability.py
 ```
 
-This function runs the variability_analysis.py function for all the lines from the `modality_parameters_file_path` file.
+This function runs the `variability_analysis.py` function for all the lines from the `modality_parameters_file_path` file.
 This should run quickly and produce processed files and associated variability plots. Now we can proceed to the COGENT stability analyses.
 
 ### COGENT
@@ -76,7 +76,7 @@ COGENT is the lengthiest part of this pipeline. In this part, for each modality,
 ```bash
 python ../multilayer_python/create_COGENT_options_from_processed_files.py
 ```
-This will create a file, called `COGENT_options.csv` in the `options` folder. It will contain the default options for COGENT with Pearson correlation. (Remember to change the working_direct and options_file pointers if you are working in a different context.)
+This will create a file, called `COGENT_options.csv` in the `options` folder. It will contain the default options for COGENT with Pearson correlation.
 
 Now we actually need to run COGENT, and there is a convenient wrapper that uses all the previous files we generated to figure out how to run COGENT.
 
@@ -90,7 +90,7 @@ This will generate a bunch of files, which we can now proceed to visualizing.
 
 We will run `slice_and_surface_plots.py`:
 ```bash
-python ../multilayer_python//slice_and_surface_plots.py
+python ../multilayer_python/slice_and_surface_plots.py
 ```
 This should produce visualizations of how consistent the networks stay upon minor perturbations with a range of network construction approaches.
 
@@ -101,6 +101,8 @@ All of these steps can be also run by:
 ```bash
 python run_all.py
 ```
-
 ### Multilayer Networks!
 
+Finally we will connect all the modalities' layers into a multilayer network. We do it by principled coupling of the nodes between layers and by then running an adapted Leiden algorithm on the multilayer network, by default with Modularity Vertex Partition. This results in a patient-sample stratification, which can be different across layers (thereby uncovering further information, while keeping the integrated nature of the stratification).
+
+![Heatmap of clustering](images/heatmap_clustering_plot_0.5.png)
