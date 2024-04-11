@@ -65,7 +65,14 @@ To do this for all the modalities, we run the following commands:
 ```
 
 This function runs the `variability_analysis.py` function for all the lines from the `modality_parameters_file_path` file.
-This should run quickly and produce processed files and associated variability plots. Now we can proceed to the COGENT stability analyses.
+This should run quickly and produce processed files and associated variability plots. 
+
+![Variability for RNAseq](../images/logRNAcpm_0.5_log_regression_variability_plot.png)
+
+![Variability for timstof](../images/timstof_0.5_log_regression_variability_plot.png)
+
+
+Now we can proceed to the COGENT stability analyses.
 
 ### COGENT
 
@@ -94,15 +101,31 @@ python ../multilayer_python/slice_and_surface_plots.py
 ```
 This should produce visualizations of how consistent the networks stay upon minor perturbations with a range of network construction approaches.
 
+![COGENT RNA before normalizing](../images/sepsisCOGENT_plot_logRNAcpm_pearson_8_True_top_var_feat8_step150_max1500_threshold_min0.01_threshold_max0.99_threshold_step0.05.png)
+
+![COGENT RNA after normalizing](../images/sepsisCOGENT_plot_logRNAcpm_pearson_8_True_top_var_feat8_step150_max1500_threshold_min0.01_threshold_max0.99_threshold_step0.05_rescaled.png)
+
+![COGENT timstof before normalizing](../images/sepsisCOGENT_plot_timstof_pearson_8_True_top_var_feat8_step27_max269_threshold_min0.01_threshold_max0.99_threshold_step0.05.png)
+
+![COGENT timstof after normalizing](../images/sepsisCOGENT_plot_timstof_pearson_8_True_top_var_feat8_step27_max269_threshold_min0.01_threshold_max0.99_threshold_step0.05_rescaled.png)
+
+
 Finally, let's create a multilayer network!
 
 
-All of these steps can be also run by:
-```bash
-python run_all.py
-```
 ### Multilayer Networks!
 
 Finally we will connect all the modalities' layers into a multilayer network. We do it by principled coupling of the nodes between layers and by then running an adapted Leiden algorithm on the multilayer network, by default with Modularity Vertex Partition. This results in a patient-sample stratification, which can be different across layers (thereby uncovering further information, while keeping the integrated nature of the stratification).
 
 ![Heatmap of clustering](../images/heatmap_clustering_plot_0.5.png)
+![Distribution of run 1 for timstof](../images/timstof_multiplex_cluster_diagnosis_distribution_plot.png)
+![Clustermap of clusterings of all runs for timstof](../images/clustermap.png)
+
+
+
+### Running it all at once
+All of these steps can be also run by running this from the snippets folder with the virtual environment enabled:
+
+```bash
+python run_all.py
+```
