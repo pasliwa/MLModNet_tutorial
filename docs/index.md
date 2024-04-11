@@ -12,7 +12,7 @@ Just run the following to download and install the relevant environment.
 - [Tutorial: COMBAT](tutorial/part_2.md)
 
 ## Additional Resources
-Links to external resources, documentation, etc.
+More information in the [MLModNet GitHub page](https://github.com/pasliwa/MLModNet) and in the associated paper.
 
 ## Contributing
-How users can contribute to the package or provide feedback.
+You can contribute by forking [MLModNet GitHub page](https://github.com/pasliwa/MLModNet). 
