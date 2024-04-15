@@ -129,8 +129,64 @@ And the meaning of the colors in the second panel is illustrated by this legend:
 ![Color legend](../images/color_legend.png)
 #### Timstof cluster's diagnosis distribution 
 ![Distribution of run 1 for timstof](../images/timstof_multiplex_cluster_diagnosis_distribution_plot.png)
+
 #### Timstof cluster's stability 
+We need to be confident in the stability of our clusters or at least, understand how stable they are. Leiden Algorithm is stochastic in its nature, so may lead to different clusterings each time. However, if the clusters are sufficiently distinct, there should not be too much variability between different runs. To assess the stability of the clustering, we run the multilayer community detection 1000 times. We then show the cluster assignments across the runs as rows. 
 ![Clustermap of clusterings of all runs for timstof](../images/clustermap.png)
+We see that clustering is very stable for the sepsis dataset, as almost all samples co-cluster identically across runs.
+
+### Exploring the clinical meta-data enrichments
+
+Our clusters are stable, but what do they mean? We will explore this now, through exploring enrichments in different clinical meta-data features.
+In the sepsis dataset, we have access to a column named "Diagnosis", which contains the label a patient was assigned by a clinician. We want to understand whether the clusters that we identified can be associated with certain diagnosis types.
+
+We create 1000 random cluster assignments by shuffling. We then compare the observed distribution of diagnoses to these random distributions to see, if clusters have more diagnoses of a certain type than expected through random chance. 
+
+We visualize it as both, distribution plots and z-score heatmap. We see that MLModNet identifies clusters with distinct, non-random diagnosis enrichments. E.g. cluster 0.0 has a z-score of -8.5 for FP (feacal peritonitis) and 8.5 for CAP (community acquired pneumonia), while cluster 1.0 has a z-scores of 4.1 and -3.9 respectively; cluster 2.0 exhibits similar pattern to cluster 1.0.
+
+![Shuffled vs observed diagnosis counts per cluster](../images/distribution_clusters_viol_Diagnosis.png)
+
+![Shuffled vs observed diagnosis counts per cluster z-scores](../images/z_scores_Diagnosis.png)
+
+We can do this type of analysis for all categorical features in the clinical meta-data.
+
+We can also create similar plots for quantitative features, upon applying a aggregation approach (test-statistic) to them (e.g. median). You can generate these plots by running:
+```bash
+python ../multilayer_python/cluster_drawing.py {k} {clinical_column} {quant_column}
+```
+where `k` is filtering out infrequent diagnoses (less than k examples in dataset), `clinical_column` is the clinical variable you want to plot (Diagnosis) and `quant_column` - the quantitative feature you want to visualize (Age).
+
+### Pathway enrichments
+
+Next, we want to better understand what the molecular underpinnings of the clusters are. For that, we will calculate pathway activity for each of the patients and aggregate it at the cluster level. We can only do it for the patients that have RNA-seq data. Upon running:
+```bash
+python ../multilayer_python/pathway_plots.py
+```
+we obtain the following plots in the `output/pathway/` directory:
+- {pathway_name}_cluster_pathway_plots_network.png
+- {pathway_name}_heatmap_pairs_contrasts.png
+- {pathway_name}_heatmap_absolute_values.png
+- {pathway_name}_pathways_violing_{pair}.png showing the top 10 most different pathways for each pair
+- {pathway_name}_network_{cluster1}_vs_{cluster2}.png for each pair of clusters, showing the Reactome tree of pathways anchored on {pathway_name}
+
+#### Overview of 3 most important pathways per cluster pair
+
+![Metabolism of lipids](../images/R-HSA-556833_cluster_pathway_plots_network.png)
+
+#### Aggregated pathway activities
+![Metabolism of lipids](../images/R-HSA-556833_heatmap_absolute_values.png)
+#### Mann Whitney U contrasts for each pair
+![Shuffled vs observed diagnosis counts per cluster](../images/R-HSA-556833_heatmap_pairs_contrasts.png)
+#### Reactome Tree view of pathways
+![Shuffled vs observed diagnosis counts per cluster](../images/R-HSA-556833_network_0.0_vs_1.0.png)
+#### 10 most contrasting pathways as violinplots
+![Shuffled vs observed diagnosis counts per cluster](../images/R-HSA-556833_pathways_violin_(0.0, 1.0).png)
+
+### Survival analysis
+
+TODO
+
+### Molecular feature enrichments
 
 ### Running it all at once
 All of these steps can be also run by running this from the snippets folder with the virtual environment enabled:
